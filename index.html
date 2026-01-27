@@ -1,0 +1,62 @@
+<!DOCTYPE html><head>
+<meta charset='utf-8'>
+<title>Dr1v3n Crazy Online 🚗🌴</title>
+<meta name=apple-mobile-web-app-capable content=yes>
+<meta name=mobile-web-app-capable content=yes>
+<link rel=icon type=image/png href=favicon.png>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<meta name="twitter:title" content="Dr1v3n Crazy - Online Multiplayer">
+<meta property="og:title" content="Dr1v3n Crazy - Online Multiplayer">
+<meta name="description" content="Arcade racing game - Solo or Multiplayer P2P">
+<meta name="twitter:description" content="Arcade racing game - Solo or Multiplayer P2P">
+<meta property="og:description" content="Arcade racing game - Solo or Multiplayer P2P">
+<meta name="twitter:image" content="screenshot.png">
+<meta property="og:image" content="screenshot.png">
+<meta name="keywords" content="Driving, Game, Racing, Multiplayer, Outrun, Arcade, Online">
+
+</head><body style="background:#000">
+
+<script>
+onerror=(event, source, lineno, colno, error)=>
+{
+    document.body.style.backgroundColor = '#222';
+    document.body.innerHTML = `<pre style="color:red;font-size:50px;">` + 
+        `${event}\n${source}\nLn ${lineno}, Col ${colno}`; 
+}
+</script>
+
+<!-- PeerJS per connessioni P2P -->
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+<!-- Core Engine -->
+<script src=code/debug.js></script>
+<script src=code/utilities.js></script>
+<script src=code/webgl.js></script>
+<script src=code/webgl-enhanced.js></script>
+<script src=code/draw.js></script>
+<script src=code/scene.js></script>
+<script src=code/track.js></script>
+<script src=code/levels.js></script>
+<script src=code/trackGen.js></script>
+<script src=code/generative.js></script>
+
+<!-- Input & Audio -->
+<script src=code/input.js></script>
+<script src=code/audio.js></script>
+<script src=code/sounds.js></script>
+
+<!-- Game Logic -->
+<script src=code/vehicle.js></script>
+<script src=code/hud.js></script>
+
+<!-- Multiplayer & Menu -->
+<script src=code/multiplayer.js></script>
+<script src=code/menu.js></script>
+
+<!-- Game Core -->
+<script src=code/game.js></script>
+<script src=code/main.js></script>
+
+</body>
+</html>

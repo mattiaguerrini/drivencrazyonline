@@ -1,0 +1,5 @@
+# Jekyll configuration for GitHub Pages
+# This prevents GitHub from processing files with Jekyll
+
+# Disable Jekyll processing
+theme: null

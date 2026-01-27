@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Come Giocare - Dr1v3n Wild Multiplayer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f3460 100%);
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0,255,255,0.5);
+        }
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1em;
+        }
+        .play-button {
+            display: inline-block;
+            margin: 20px;
+            padding: 20px 50px;
+            font-size: 1.5em;
+            background: linear-gradient(135deg, #00ff00, #00aa00);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,255,0,0.4);
+            transition: all 0.3s;
+        }
+        .play-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,255,0,0.6);
+        }
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-left: 5px solid #00ff88;
+            padding-left: 15px;
+        }
+        .step {
+            background: rgba(0,212,255,0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .step-number {
+            display: inline-block;
+            background: #00d4ff;
+            color: #000;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .color-demo {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            border-radius: 5px;
+            margin: 0 10px;
+            vertical-align: middle;
+            border: 2px solid white;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .control {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+        .key {
+            display: inline-block;
+            background: #00d4ff;
+            color: #000;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0,255,136,0.1);
+            border-radius: 5px;
+        }
+        .feature::before {
+            content: "✓";
+            color: #00ff88;
+            font-size: 1.5em;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .warning {
+            background: rgba(255,170,0,0.2);
+            border-left: 4px solid #ffaa00;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .play-button { font-size: 1.2em; padding: 15px 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Dr1v3n Wild</h1>
+            <p class="subtitle">Multiplayer Edition - P2P WebRTC</p>
+            <a href="index.html" class="play-button">🚗 GIOCA ORA!</a>
+        </header>
+
+        <div class="section">
+            <h2>🎯 Come Giocare in Multiplayer</h2>
+            
+            <h3 style="color: #ffaa00; margin-top: 20px;">Creare una Stanza</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                Nella schermata del titolo, premi il tasto <span class="key">M</span>
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                Clicca su <strong>"CREA STANZA"</strong>
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                Riceverai un codice a 6 cifre (es: <strong>123456</strong>)
+            </div>
+            <div class="step">
+                <span class="step-number">4</span>
+                Condividi il codice con i tuoi amici via chat/email/whatsapp
+            </div>
+            <div class="step">
+                <span class="step-number">5</span>
+                Aspetta che gli altri entrino e premi <strong>"PRONTO"</strong>
+            </div>
+            <div class="step">
+                <span class="step-number">6</span>
+                Quando tutti sono pronti, la partita inizia! 🏁
+            </div>
+
+            <h3 style="color: #ffaa00; margin-top: 30px;">Entrare in una Stanza</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                Premi <span class="key">M</span> nella schermata del titolo
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                Clicca su <strong>"ENTRA IN STANZA"</strong>
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                Inserisci il codice a 6 cifre ricevuto dal tuo amico
+            </div>
+            <div class="step">
+                <span class="step-number">4</span>
+                Premi <strong>"ENTRA"</strong>
+            </div>
+            <div class="step">
+                <span class="step-number">5</span>
+                Quando sei pronto, clicca <strong>"PRONTO"</strong>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎨 Colori Giocatori</h2>
+            <p style="margin-bottom: 15px;">Ogni giocatore riceve automaticamente un colore unico:</p>
+            <div style="font-size: 1.2em; line-height: 2;">
+                <p>
+                    <span class="color-demo" style="background: hsl(0, 80%, 50%);"></span>
+                    <strong style="color: hsl(0, 80%, 50%);">Rosso</strong> - Primo giocatore (Host) 👑
+                </p>
+                <p>
+                    <span class="color-demo" style="background: hsl(60, 80%, 50%);"></span>
+                    <strong style="color: hsl(60, 80%, 50%);">Giallo</strong> - Secondo giocatore
+                </p>
+                <p>
+                    <span class="color-demo" style="background: hsl(240, 80%, 50%);"></span>
+                    <strong style="color: hsl(240, 80%, 50%);">Blu</strong> - Terzo giocatore
+                </p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎮 Controlli</h2>
+            <div class="controls">
+                <div class="control">
+                    <div class="key">← →</div>
+                    <div>Sterza</div>
+                </div>
+                <div class="control">
+                    <div class="key">Mouse</div>
+                    <div>Guida</div>
+                </div>
+                <div class="control">
+                    <div class="key">SPAZIO</div>
+                    <div>Freno</div>
+                </div>
+                <div class="control">
+                    <div class="key">M</div>
+                    <div>Menu Multiplayer</div>
+                </div>
+                <div class="control">
+                    <div class="key">F</div>
+                    <div>Guida Libera</div>
+                </div>
+                <div class="control">
+                    <div class="key">ESC</div>
+                    <div>Menu Principale</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>✨ Caratteristiche</h2>
+            <div class="feature">Completamente Gratuito - Nessun server da pagare</div>
+            <div class="feature">Peer-to-Peer - Connessioni dirette tramite WebRTC</div>
+            <div class="feature">Stanze Private - Codici a 6 cifre</div>
+            <div class="feature">Fino a 3 Giocatori per stanza</div>
+            <div class="feature">Sincronizzazione Real-time (60 FPS)</div>
+            <div class="feature">Nessuna installazione richiesta</div>
+            <div class="feature">Funziona su qualsiasi browser moderno</div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Come Funziona</h2>
+            <p style="margin-bottom: 15px;">
+                Questo gioco usa la tecnologia <strong>WebRTC</strong> per connettere 
+                direttamente i browser dei giocatori, senza bisogno di un server centrale.
+            </p>
+            <p style="margin-bottom: 15px;">
+                Quando crei una stanza, diventi l'<strong>host</strong>. Gli altri giocatori 
+                si connettono direttamente a te. Questo significa:
+            </p>
+            <div class="feature">✅ Bassa latenza (connessione diretta)</div>
+            <div class="feature">✅ Completamente gratuito</div>
+            <div class="feature">✅ Funziona ovunque</div>
+            
+            <div class="warning">
+                ⚠️ <strong>Nota:</strong> L'host deve rimanere connesso per tutta la partita. 
+                Se l'host si disconnette, la partita termina per tutti.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💡 Consigli</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 10px 0;">🎯 Condividi il codice stanza via chat prima di iniziare</li>
+                <li style="padding: 10px 0;">📱 Funziona anche su mobile e tablet</li>
+                <li style="padding: 10px 0;">🌐 Serve una connessione internet stabile</li>
+                <li style="padding: 10px 0;">👥 Servono almeno 2 giocatori per iniziare</li>
+                <li style="padding: 10px 0;">⏰ Non c'è limite di tempo - gioca quanto vuoi!</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🐛 Problemi Comuni</h2>
+            
+            <h3 style="color: #ff8888;">Non riesco a connettermi</h3>
+            <ul style="margin-left: 20px; margin-bottom: 20px;">
+                <li>Verifica che il codice sia corretto (6 cifre)</li>
+                <li>Assicurati che l'host sia ancora nella stanza</li>
+                <li>Prova a ricaricare la pagina</li>
+                <li>Controlla la tua connessione internet</li>
+            </ul>
+
+            <h3 style="color: #ff8888;">I giocatori non si vedono</h3>
+            <ul style="margin-left: 20px; margin-bottom: 20px;">
+                <li>Tutti devono premere "PRONTO"</li>
+                <li>Aspetta qualche secondo per la sincronizzazione</li>
+                <li>Prova a ricreare la stanza</li>
+            </ul>
+
+            <h3 style="color: #ff8888;">Lag o scatti</h3>
+            <ul style="margin-left: 20px;">
+                <li>Verifica la qualità della tua connessione</li>
+                <li>Chiudi altre tab/programmi che usano internet</li>
+                <li>Avvicinati al router WiFi</li>
+            </ul>
+        </div>
+
+        <div class="section" style="text-align: center;">
+            <h2>🎮 Pronto a Giocare?</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">
+                Invita i tuoi amici e inizia a gareggiare!
+            </p>
+            <a href="index.html" class="play-button">🚗 INIZIA A GIOCARE</a>
+        </div>
+
+        <footer style="text-align: center; padding: 30px; opacity: 0.7; margin-top: 50px;">
+            <p>Basato su Dr1v3n Wild di Frank Force</p>
+            <p>Implementazione Multiplayer P2P con WebRTC</p>
+            <p style="margin-top: 10px;">❤️ Completamente Open Source</p>
+        </footer>
+    </div>
+</body>
+</html>
