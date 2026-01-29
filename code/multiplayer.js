@@ -92,13 +92,12 @@ function createMultiplayerUI() {
             <h3>Giocatori (<span id="player-count">0</span>/3):</h3>
             <div id="players-list" style="margin: 20px 0; max-height: 200px; overflow-y: auto;"></div>
             
-            <!-- Timer e pulsante START per l'host -->
+            <!-- Pulsante START per l'host (senza timer) -->
             <div id="host-controls" style="display: none; text-align: center; margin: 20px 0; padding: 15px; background: rgba(255, 170, 0, 0.2); border-radius: 10px; border: 2px solid #ffaa00;">
-                <p id="host-timer" style="font-size: 2em; font-weight: bold; color: #ffaa00; margin: 10px 0;"></p>
-                <button id="host-start-button" onclick="hostForceStart()" disabled style="width: 100%; padding: 15px; margin: 10px 0; font-size: 18px; cursor: not-allowed; background: #666; border: none; border-radius: 5px; font-weight: bold; color: #aaa;">
-                    START PARTITA
+                <button id="host-start-button" onclick="hostForceStart()" style="width: 100%; padding: 15px; margin: 10px 0; font-size: 18px; cursor: pointer; background: linear-gradient(135deg, #ff8800, #ff4400); border: none; border-radius: 5px; font-weight: bold; color: white;">
+                    🚀 START PARTITA
                 </button>
-                <p style="font-size: 0.9em; color: #aaa;">Puoi startare dopo 1 minuto dall'arrivo del secondo giocatore</p>
+                <p style="font-size: 0.9em; color: #aaa;">Avvia quando sei pronto!</p>
             </div>
             
             <button id="ready-button" onclick="playerReady()" style="width: 100%; padding: 15px; margin: 10px 0; font-size: 18px; cursor: pointer; background: #00ff00; border: none; border-radius: 5px; font-weight: bold;">
@@ -260,9 +259,10 @@ function handleIncomingConnection(conn) {
             }
         }, conn.peer);
         
-        // Se è il secondo giocatore, avvia il timer dell'host
+        // Se è il secondo giocatore, mostra i controlli host
         if (remotePlayers.size === 1 && isRoomHost) {
-            startHostTimer();
+            const hostControls = document.getElementById('host-controls');
+            if (hostControls) hostControls.style.display = 'block';
         }
         
         updatePlayersListUI();
@@ -521,14 +521,20 @@ function startMultiplayerGame() {
     gameStart();
     multiplayerEnabled = true;
     
-    // Dopo l'avvio, crea i veicoli remoti e aggiungili all'array vehicles
+    // Applica il colore corretto al veicolo del giocatore
     setTimeout(() => {
+        if (playerVehicle && myPlayerColor) {
+            playerVehicle.color = hsl(myPlayerColor.hsl[0], myPlayerColor.hsl[1], myPlayerColor.hsl[2]);
+            console.log('Colore applicato al player:', myPlayerColor.name);
+        }
+        
+        // Crea i veicoli remoti e aggiungili all'array vehicles
         remotePlayers.forEach((playerData, playerId) => {
             if (playerData.vehicle) {
                 // Aggiungi il veicolo remoto alla lista dei veicoli per renderizzarlo e gestire collisioni
                 if (!vehicles.includes(playerData.vehicle)) {
                     vehicles.push(playerData.vehicle);
-                    console.log('Veicolo remoto aggiunto per collisioni:', playerId);
+                    console.log('Veicolo remoto aggiunto:', playerId, 'Colore:', playerData.color.name);
                 }
             }
         });
@@ -636,24 +642,17 @@ function createRemotePlayer(playerData) {
     };
 }
 
-// Aggiorna giocatore remoto
+// Aggiorna giocatore remoto con il nuovo sistema
 function updateRemotePlayer(data) {
     const remotePlayer = remotePlayers.get(data.playerId);
     if (remotePlayer && remotePlayer.vehicle) {
-        remotePlayer.vehicle.pos.x = data.pos.x;
-        remotePlayer.vehicle.pos.y = data.pos.y;
-        remotePlayer.vehicle.pos.z = data.pos.z;
-        remotePlayer.vehicle.velocity.x = data.velocity.x;
-        remotePlayer.vehicle.velocity.y = data.velocity.y;
-        remotePlayer.vehicle.velocity.z = data.velocity.z;
-        remotePlayer.vehicle.wheelTurn = data.wheelTurn;
-        remotePlayer.vehicle.isBraking = data.isBraking;
+        remotePlayer.vehicle.updateTarget(data);
     }
 }
 
-// Invia aggiornamento posizione (throttled per performance)
+// Invia aggiornamento posizione con alta frequenza e timestamp
 let lastUpdateTime = 0;
-const updateInterval = 1000 / 20; // 20 aggiornamenti al secondo
+const updateInterval = 1000 / 60; // 60 aggiornamenti al secondo per massima fluidità
 
 function sendPositionUpdate() {
     if (!multiplayerEnabled || !playerVehicle) return;
@@ -665,6 +664,7 @@ function sendPositionUpdate() {
     const message = {
         type: 'playerUpdate',
         playerId: myPlayerId,
+        timestamp: now,
         pos: {
             x: playerVehicle.pos.x,
             y: playerVehicle.pos.y,
@@ -682,95 +682,98 @@ function sendPositionUpdate() {
     broadcast(message);
 }
 
-// Classe per i veicoli remoti
+// Classe per i veicoli remoti con interpolazione smooth e predizione
 class RemoteVehicle extends Vehicle {
     constructor(z, color) {
         super(z, color);
         this.isRemote = true;
-        // Imposta dimensioni collisione identiche ai veicoli normali
         this.collisionSize = vec3(230, 200, 380);
+        
+        // Sistema di interpolazione avanzato
+        this.targetPos = vec3(0, 0, z);
+        this.targetVelocity = vec3(0, 0, 0);
+        this.lastUpdateTime = Date.now();
+        this.interpolationFactor = 0.35; // Valore ottimale per fluidità
+        
+        // Buffer per smooth rendering
+        this.positionHistory = [];
+        this.maxHistorySize = 5;
+        
+        // Latency tracking
+        this.latency = 0;
+        this.latencySmoothing = 0.9;
+    }
+    
+    updateTarget(data) {
+        // Aggiorna posizione target
+        this.targetPos.x = data.pos.x;
+        this.targetPos.y = data.pos.y;
+        this.targetPos.z = data.pos.z;
+        this.targetVelocity.x = data.velocity.x;
+        this.targetVelocity.y = data.velocity.y;
+        this.targetVelocity.z = data.velocity.z;
+        this.wheelTurn = data.wheelTurn;
+        this.isBraking = data.isBraking;
+        
+        // Calcola latenza smooth
+        if (data.timestamp) {
+            const currentLatency = Date.now() - data.timestamp;
+            this.latency = this.latency * this.latencySmoothing + currentLatency * (1 - this.latencySmoothing);
+        }
+        
+        // Aggiungi al buffer storico
+        this.positionHistory.push({
+            pos: this.targetPos.copy(),
+            velocity: this.targetVelocity.copy(),
+            time: Date.now()
+        });
+        
+        if (this.positionHistory.length > this.maxHistorySize) {
+            this.positionHistory.shift();
+        }
+        
+        this.lastUpdateTime = Date.now();
     }
     
     update() {
-        // I veicoli remoti ricevono aggiornamenti via P2P
+        // Calcola predizione basata su latenza
+        const latencySeconds = Math.min(this.latency, 200) / 1000; // Cap a 200ms
+        const predictedX = this.targetPos.x + (this.targetVelocity.x * latencySeconds);
+        const predictedZ = this.targetPos.z + (this.targetVelocity.z * latencySeconds);
+        
+        // Interpolazione smooth verso posizione predetta
+        const factor = this.interpolationFactor;
+        this.pos.x = lerp(factor, this.pos.x, predictedX);
+        this.pos.z = lerp(factor, this.pos.z, predictedZ);
+        
+        // Interpola anche la velocità per rendering più naturale
+        this.velocity.x = lerp(factor, this.velocity.x, this.targetVelocity.x);
+        this.velocity.y = lerp(factor, this.velocity.y, this.targetVelocity.y);
+        this.velocity.z = lerp(factor, this.velocity.z, this.targetVelocity.z);
+        
+        // Aggiorna Y basandosi sulla traccia
         const trackInfo = new TrackSegmentInfo(this.pos.z);
         this.pos.y = trackInfo.offset.y;
         
-        // Mantieni l'angolatura delle ruote per il rendering
+        // Smooth wheel turn per animazione realistica
         if (this.velocity.z > 0) {
-            this.wheelTurn = lerp(.1, this.wheelTurn, this.pos.x / 1000);
+            const targetWheelTurn = this.pos.x / 1000;
+            this.wheelTurn = lerp(0.2, this.wheelTurn, targetWheelTurn);
         }
-    }
-    
-    // I veicoli remoti devono essere trattati come ostacoli fisici
-    // Non sovrascriviamo altri metodi per mantenere la fisica delle collisioni
-}
-
-// Avvia il timer per l'host (1 minuto)
-function startHostTimer() {
-    if (!isRoomHost) return;
-    
-    console.log('Timer host avviato - 1 minuto prima dello start');
-    hostStartTime = Date.now();
-    canHostStart = false;
-    
-    const hostControls = document.getElementById('host-controls');
-    const hostTimerEl = document.getElementById('host-timer');
-    const hostStartBtn = document.getElementById('host-start-button');
-    
-    if (hostControls) hostControls.style.display = 'block';
-    
-    // Aggiorna il timer ogni secondo
-    hostStartTimer = setInterval(() => {
-        const elapsed = Date.now() - hostStartTime;
-        const remaining = Math.max(0, 60000 - elapsed); // 60 secondi = 60000ms
-        const seconds = Math.ceil(remaining / 1000);
         
-        if (hostTimerEl) {
-            if (seconds > 0) {
-                hostTimerEl.textContent = `⏱️ Puoi startare tra: ${seconds}s`;
-                hostTimerEl.style.color = '#ffaa00';
-            } else {
-                hostTimerEl.textContent = '✅ Puoi startare la partita!';
-                hostTimerEl.style.color = '#00ff00';
-                canHostStart = true;
-                
-                // Abilita il pulsante START
-                if (hostStartBtn) {
-                    hostStartBtn.disabled = false;
-                    hostStartBtn.style.cursor = 'pointer';
-                    hostStartBtn.style.background = 'linear-gradient(135deg, #ff8800, #ff4400)';
-                    hostStartBtn.style.color = 'white';
-                }
-                
-                // Ferma il timer
-                clearInterval(hostStartTimer);
-                hostStartTimer = null;
-            }
+        // Extrapolazione intelligente se non riceviamo update
+        const timeSinceUpdate = Date.now() - this.lastUpdateTime;
+        if (timeSinceUpdate > 100 && timeSinceUpdate < 500) {
+            // Continua il movimento previsto
+            this.pos.x += this.targetVelocity.x * 0.01;
+            this.pos.z += this.targetVelocity.z * 0.01;
         }
-    }, 1000);
-}
-
-// Ferma il timer dell'host
-function stopHostTimer() {
-    if (hostStartTimer) {
-        clearInterval(hostStartTimer);
-        hostStartTimer = null;
     }
-    canHostStart = false;
-    hostStartTime = 0;
-    
-    const hostControls = document.getElementById('host-controls');
-    if (hostControls) hostControls.style.display = 'none';
 }
 
-// L'host forza lo start della partita
+// L'host avvia la partita (senza timer)
 function hostForceStart() {
     if (!isRoomHost) return;
-    if (!canHostStart) {
-        alert('Devi aspettare 1 minuto dall\'arrivo del secondo giocatore!');
-        return;
-    }
     
     // Verifica che ci siano almeno 2 giocatori
     const totalPlayers = 1 + remotePlayers.size;
@@ -779,10 +782,7 @@ function hostForceStart() {
         return;
     }
     
-    console.log('Host ha avviato forzatamente la partita');
-    
-    // Ferma il timer
-    stopHostTimer();
+    console.log('Host ha avviato la partita');
     
     // Invia il segnale di start a tutti
     broadcast({ type: 'gameStart' });
@@ -791,14 +791,26 @@ function hostForceStart() {
     startMultiplayerGame();
 }
 
-// Modifica la funzione checkAllReady per considerare il timer
-function checkAllReadyWithTimer() {
+// Controlla se tutti sono pronti
+function checkAllReady() {
     if (!isRoomHost) return;
     
     const totalPlayers = 1 + remotePlayers.size;
-    if (totalPlayers < 2) return; // Serve almeno 2 giocatori
+    if (totalPlayers < 2) return;
     
     let allReady = playersReady.get(myPlayerId) || false;
+    remotePlayers.forEach((player, playerId) => {
+        if (!playersReady.get(playerId)) allReady = false;
+    });
+    
+    if (allReady) {
+        console.log('Tutti pronti! Avvio automatico...');
+        setTimeout(() => {
+            broadcast({ type: 'gameStart' });
+            startMultiplayerGame();
+        }, 1000);
+    }
+}
     remotePlayers.forEach((player, playerId) => {
         if (!playersReady.get(playerId)) allReady = false;
     });

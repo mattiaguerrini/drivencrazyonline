@@ -2,7 +2,25 @@
 
 function drawCars()
 {
-    for(const v of vehicles)
+    // Ottimizzazione: prima i veicoli remoti (sempre visibili)
+    // poi gli AI in base alla distanza
+    const remoteCars = [];
+    const aiCars = [];
+    
+    for(const v of vehicles) {
+        if (v.isRemote) {
+            remoteCars.push(v);
+        } else {
+            aiCars.push(v);
+        }
+    }
+    
+    // Disegna prima i remoti (priorità)
+    for(const v of remoteCars)
+        v.draw();
+    
+    // Poi gli AI (con culling più aggressivo)
+    for(const v of aiCars)
         v.draw();
 }
 
@@ -221,11 +239,23 @@ class Vehicle
         }
         glPolygonOffset(); // turn it off!
 
+        // Culling ottimizzato con priorità per veicoli remoti
         if (optimizedCulling)
         {
             const distanceFromPlayer = this.pos.z - playerVehicle.pos.z;
-            if (distanceFromPlayer > 4e4)
-                return; // cull too far
+            const absDistance = Math.abs(distanceFromPlayer);
+            
+            // I veicoli remoti hanno sempre priorità di rendering
+            if (!this.isRemote && absDistance > 4e4)
+                return; // cull AI vehicles too far
+            
+            // Riduce dettagli per veicoli molto lontani
+            if (absDistance > 2e4)
+            {
+                // Skip dettagli come ruote per veicoli lontani (tranne remoti)
+                if (!this.isRemote)
+                    return;
+            }
         }
 
         // wheels
