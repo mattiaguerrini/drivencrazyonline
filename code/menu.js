@@ -194,8 +194,12 @@ function startMultiplayerMode() {
     menuMode = 'multiplayer';
     hideMenu();
     
-    // Mostra il menu multiplayer
-    showMultiplayerMenu();
+    // Mostra il menu multiplayer se la funzione è disponibile
+    if (typeof showMultiplayerMenu === 'function') {
+        showMultiplayerMenu();
+    } else {
+        console.error('showMultiplayerMenu non è definita. Assicurati che multiplayer.js sia caricato.');
+    }
 }
 
 // Torna al menu principale

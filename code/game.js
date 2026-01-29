@@ -134,8 +134,8 @@ function gameStart()
     vehicles = [];
     buildTrack();
     
-    // Usa il colore multiplayer se disponibile
-    const playerColor = myPlayerColor ? 
+    // Usa il colore multiplayer se disponibile, altrimenti colore default
+    const playerColor = (typeof myPlayerColor !== 'undefined' && myPlayerColor) ? 
         hsl(myPlayerColor.hsl[0], myPlayerColor.hsl[1], myPlayerColor.hsl[2]) : 
         hsl(0,.8,.5);
     
